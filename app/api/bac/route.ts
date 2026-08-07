@@ -1,0 +1,3 @@
+import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
+export async function POST(req:Request){const {bac,related_entry_id}=await req.json();const supabase=await createClient();const {data:{user}}=await supabase.auth.getUser();if(!user)return NextResponse.json({error:'Sign in required'},{status:401});const {error}=await supabase.from('bac_readings').insert({user_id:user.id,bac:Number(bac),related_entry_id,measured_at:new Date().toISOString()});if(error)return NextResponse.json({error:error.message},{status:400});if(related_entry_id)await supabase.from('bac_reminders').update({status:'completed'}).eq('user_id',user.id).eq('related_entry_id',related_entry_id);return NextResponse.json({ok:true})}
