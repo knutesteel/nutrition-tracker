@@ -1,10 +1,5 @@
+import { redirect } from 'next/navigation'
 import AppShell from '@/components/AppShell'
-
-export default function Page() {
-  return (
-    <AppShell>
-      <div className="top"><div><div className="eyebrow">History</div><h1 className="title">Past Days</h1></div></div>
-      <div className="card"><p className="tiny">No intake history yet.</p></div>
-    </AppShell>
-  )
-}
+import { createClient } from '@/lib/supabase/server'
+export const dynamic='force-dynamic'
+export default async function Page(){const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)redirect('/login');const {data}=await s.from('intake_entries').select('id,description,portion,consumed_at,entry_type,nutrition_analyses(calories),alcohol_analyses(standard_drinks)').order('consumed_at',{ascending:false}).limit(200);const groups=new Map<string,typeof data>();for(const e of data||[]){const k=new Date(e.consumed_at).toLocaleDateString('en-US',{weekday:'short',month:'long',day:'numeric'});groups.set(k,[...(groups.get(k)||[]),e])}return <AppShell><div className="top"><div><div className="eyebrow">History</div><h1 className="title">Past Intake</h1></div></div>{groups.size===0?<div className="card"><p className="tiny">No intake history yet.</p></div>:[...groups].map(([day,items])=><div className="card" key={day}><h3 className="section-title">{day}</h3>{items!.map(e=><div className="entry" key={e.id}><div><b>{e.description}</b><div className="tiny">{e.portion} · {new Date(e.consumed_at).toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'})}</div></div><span>{Math.round(Number((e.nutrition_analyses as any)?.[0]?.calories||0))} cal</span></div>)}</div>)}</AppShell>}

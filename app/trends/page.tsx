@@ -1,14 +1,3 @@
-import AppShell from '@/components/AppShell'
-
-export default function Page() {
-  return (
-    <AppShell>
-      <div className="top"><div><div className="eyebrow">Trends</div><h1 className="title">30-Day View</h1></div></div>
-      <div className="grid">
-        <div className="card metric"><span className="sub">Avg Calories</span><b>0</b></div>
-        <div className="card metric"><span className="sub">Drinks / Week</span><b>0</b></div>
-      </div>
-      <div className="card"><h3 className="section-title">AI Observations</h3><p className="tiny">Add entries over time to see trends and observations.</p></div>
-    </AppShell>
-  )
-}
+import {redirect} from 'next/navigation';import AppShell from '@/components/AppShell';import {createClient} from '@/lib/supabase/server';
+export const dynamic='force-dynamic';
+export default async function Page(){const s=await createClient();const {data:{user}}=await s.auth.getUser();if(!user)redirect('/login');const since=new Date(Date.now()-30*864e5).toISOString();const {data}=await s.from('intake_entries').select('consumed_at,nutrition_analyses(calories,protein_g,fiber_g),alcohol_analyses(standard_drinks)').gte('consumed_at',since);const rows=data||[];const days=new Set(rows.map(e=>e.consumed_at.slice(0,10))).size;const cal=rows.reduce((a,e)=>a+Number((e.nutrition_analyses as any)?.[0]?.calories||0),0);const drinks=rows.reduce((a,e)=>a+Number((e.alcohol_analyses as any)?.[0]?.standard_drinks||0),0);const avg=days?Math.round(cal/days):0;const week=Number((drinks/(30/7)).toFixed(1));return <AppShell><div className="top"><div><div className="eyebrow">Trends</div><h1 className="title">30-Day View</h1></div></div><div className="grid"><div className="card metric"><span className="sub">Avg Calories</span><b>{avg.toLocaleString()}</b><span className="tiny">on {days} tracked days</span></div><div className="card metric"><span className="sub">Drinks / Week</span><b>{week}</b></div></div><div className="card"><h3 className="section-title">Summary</h3><p className="tiny">{rows.length?`${rows.length} entries analyzed over ${days} days. Trends become more meaningful with consistent daily logging.`:'Add entries over time to see real trends.'}</p></div></AppShell>}

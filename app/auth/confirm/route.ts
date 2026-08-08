@@ -1,0 +1,2 @@
+import{NextResponse}from'next/server';import{createClient}from'@/lib/supabase/server';import type{EmailOtpType}from'@supabase/supabase-js';
+export async function GET(req:Request){const u=new URL(req.url);const token_hash=u.searchParams.get('token_hash');const code=u.searchParams.get('code');const type=(u.searchParams.get('type')||'email')as EmailOtpType;const s=await createClient();if(token_hash)await s.auth.verifyOtp({type,token_hash});else if(code)await s.auth.exchangeCodeForSession(code);return NextResponse.redirect(new URL('/',u.origin))}
