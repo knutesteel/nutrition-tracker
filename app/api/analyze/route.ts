@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { z } from 'zod'
 import { generateObject } from 'ai'
+import { openai } from '@ai-sdk/openai'
 
 const Body = z.object({
   description: z.string().trim().min(2).max(1000),
@@ -155,7 +156,7 @@ function fallbackAnalysis(description: string): AnalysisResult {
 async function analyze(description: string, portion: string) {
   try {
     const { object } = await generateObject({
-      model: 'inclusionai/ling-3.0-tiny-free',
+      model: openai('gpt-4.1-mini'),
       schema: Analysis,
       maxRetries: 0,
       system:
