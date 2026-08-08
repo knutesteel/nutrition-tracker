@@ -50,3 +50,21 @@ self.addEventListener('fetch', (event) => {
     )
   }
 })
+
+self.addEventListener('push', (event) => {
+  const data = event.data ? event.data.json() : {}
+  event.waitUntil(self.registration.showNotification(data.title || 'Intake', {
+    body: data.body || 'Open the app to log your intake.',
+    icon: '/icon.svg', badge: '/icon.svg', tag: data.title || 'intake-reminder',
+    data: { url: data.url || '/' },
+  }))
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
+    const target = new URL(event.notification.data?.url || '/', self.location.origin).href
+    for (const client of windows) { if ('focus' in client) { client.navigate(target); return client.focus() } }
+    return clients.openWindow(target)
+  }))
+})
