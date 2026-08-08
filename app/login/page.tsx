@@ -1,3 +1,42 @@
 'use client'
-import {FormEvent,useState}from'react';import{createClient}from'@/lib/supabase/client';
-export default function Login(){const[email,setEmail]=useState('');const[busy,setBusy]=useState(false);const[msg,setMsg]=useState('');async function send(e:FormEvent){e.preventDefault();setBusy(true);setMsg('');const s=createClient();const{error}=await s.auth.signInWithOtp({email,options:{emailRedirectTo:`${location.origin}/auth/confirm`}});setBusy(false);setMsg(error?error.message:'Check your email for your secure sign-in link.')}return <main className="login"><div className="brandmark">I</div><h1>Intake</h1><p>Track food, alcohol, nutrition, and BAC in one private place.</p><form onSubmit={send} className="form"><label>Email address</label><input className="input" type="email" required value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"/><button className="btn" disabled={busy}>{busy?'Sending…':'Email me a sign-in link'}</button>{msg&&<p className="tiny">{msg}</p>}</form><p className="micro">Your entries are private and only visible to your signed-in account.</p></main>}
+
+import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
+
+export default function Login() {
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+
+  async function signInWithGoogle() {
+    setBusy(true)
+    setMessage('')
+
+    const supabase = createClient()
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${location.origin}/auth/confirm`,
+      },
+    })
+
+    if (error) {
+      setMessage(error.message)
+      setBusy(false)
+    }
+  }
+
+  return (
+    <main className="login">
+      <div className="brandmark">I</div>
+      <h1>Intake</h1>
+      <p>Track food, alcohol, nutrition, and BAC in one private place.</p>
+      <div className="form">
+        <button className="btn" type="button" disabled={busy} onClick={signInWithGoogle}>
+          {busy ? 'Opening Google…' : 'Continue with Google'}
+        </button>
+        {message && <p className="tiny">{message}</p>}
+      </div>
+      <p className="micro">Your entries are private and only visible to your signed-in account.</p>
+    </main>
+  )
+}
