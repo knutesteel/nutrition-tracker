@@ -27,8 +27,9 @@ export default function Login() {
 
   return (
     <main className="login">
-      <div className="brandmark">I</div>
-      <h1>Intake</h1>
+      <div className="brandmark">↗</div>
+      <div className="login-kicker">Nutrition · Alcohol · BAC</div>
+      <h1>INTAKE</h1>
       <p>Track food, alcohol, nutrition, and BAC in one private place.</p>
       <div className="form">
         <button className="btn" type="button" disabled={busy} onClick={signInWithGoogle}>
