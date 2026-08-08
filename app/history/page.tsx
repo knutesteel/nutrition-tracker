@@ -1,2 +1,10 @@
 import AppShell from '@/components/AppShell'
-export default function Page(){return <AppShell><div className="top"><div><div className="eyebrow">History</div><h1 className="title">Past Days</h1></div></div>{['Aug 7','Aug 6','Aug 5','Aug 4'].map((d,i)=><div className="card row" key={d}><div><b>{d}</b><div className="tiny">{[1842,2130,1975,2260][i]} calories</div></div><div style={{textAlign:'right'}}><div>{[4.2,0,2.1,3.0][i]} drinks</div><div className="tiny">BAC {['0.067','—','0.031','0.049'][i]}</div></div></div>)}</AppShell>}
+
+export default function Page() {
+  return (
+    <AppShell>
+      <div className="top"><div><div className="eyebrow">History</div><h1 className="title">Past Days</h1></div></div>
+      <div className="card"><p className="tiny">No intake history yet.</p></div>
+    </AppShell>
+  )
+}
