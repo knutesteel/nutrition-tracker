@@ -1,0 +1,1 @@
+'use client';import{createClient}from'@/lib/supabase/client';export default function SignOut(){return <button className="btn secondary full" onClick={async()=>{await createClient().auth.signOut();location.href='/login'}}>Sign Out</button>}
